@@ -2,17 +2,23 @@
 
 中学生向けの、辺を切り取って移動・反転するタイル輪郭エディターです。
 
-[アプリを開く（本人限定）](https://tile-outline-maker.kmatsu14531.chatgpt.site)
+[アプリを開く（GitHub Pages）](https://handson-matsu.github.io/tile-shape-maker/)
 
 ## 起動
 
 依存パッケージやビルドは不要です。リポジトリのルートで実行してください。
 
 ```sh
-python3 -m http.server 5173 --directory tile-app/dist
+python3 -m http.server 5173
 ```
 
 ブラウザで http://localhost:5173 を開きます。
+
+## GitHub Pages
+
+公開元は `main` ブランチの `/ (root)` です。ルートの `index.html` からアプリを直接表示し、CSS・JavaScriptは `./tile-app/dist/` のファイルを読み込みます。JavaScript内の相対インポートはモジュールの場所を基準に解決されるため、`/tile-shape-maker/` 配下でも動作します。`.nojekyll` により静的ファイルをそのまま配信します。
+
+アプリ本体のHTMLを変更した場合は、ルートの `index.html` にも反映し、CSSとエントリースクリプトの参照先だけを `./tile-app/dist/style.css`、`./tile-app/dist/app.mjs` にしてください。CSS・JavaScript本体をルートへ複製する必要はありません。
 
 ## 機能
 
