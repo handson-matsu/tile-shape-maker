@@ -16,9 +16,12 @@ function baseProfile(pattern,symmetric=true) {
 }
 // Scale only perpendicular depth; symmetry and positions along the edge stay independent.
 export const HEIGHTS={low:.5,normal:1,high:1.6};
-export function profile(pattern,symmetric=true,height='normal') {
+export function profile(pattern,symmetric=true,height='normal',bias='left') {
   if(!Object.hasOwn(HEIGHTS,height)) throw new Error('Invalid height');
-  return baseProfile(pattern,symmetric).map(([t,h])=>[t,h*HEIGHTS[height]]);
+  if(!['left','right'].includes(bias)) throw new Error('Invalid bias');
+  const points=baseProfile(pattern,symmetric).map(([t,h])=>[t,h*HEIGHTS[height]]);
+  // Mirror along the selected edge; keep endpoints ordered for contour assembly.
+  return !symmetric&&bias==='right'?points.map(([t,h])=>[1-t,h]).reverse():points;
 }
 export function segment(shape,edge,start=0,end=1){const v=vertices(shape);return [mix(v[edge],v[(edge+1)%v.length],start),mix(v[edge],v[(edge+1)%v.length],end)]}
 export function contourPoints(shape,seg,prof,sign=1){const [a,b]=segment(shape,seg.edge,seg.start,seg.end), dx=b[0]-a[0],dy=b[1]-a[1];return prof.map(([t,h])=>[a[0]+dx*t-dy*h*.19*sign,a[1]+dy*t+dx*h*.19*sign])}
@@ -33,7 +36,7 @@ export function candidates(state,selection,method=selection.method) {
   if(selection.edge===null || !['keep','reflect'].includes(method)) return [];
   const src=sourceFor(selection.edge,selection.range);
   if(!free(state,src)) return [];
-  const prof=profile(selection.pattern,selection.symmetric,selection.height);
+  const prof=profile(selection.pattern,selection.symmetric,selection.height,selection.bias);
   const cut={...src,profile:prof,sign:1}, half=src.end-src.start===.5;
   // Validate the cut before adding anything: a high cut can cross another
   // boundary, and an addition must not hide that invalid intermediate cut.
